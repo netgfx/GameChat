@@ -1,0 +1,55 @@
+#chatarea {
+    width: 330px;
+    height: 200px;
+    border: 2px solid gold;
+    background-color: #1e1e1e;
+    color: white;
+    padding-left: 16px;
+    padding-right: 16px;
+    overflow: auto;
+    padding-bottom: 8px;
+    padding-top: 8px;
+    div {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        color: white !important;
+        display: inline-block;
+    }
+    .whisper {
+        color: #ff3265 !important;
+    }
+}
+
+// style for the input //
+#chatinput {
+    border: 2px solid gold;
+    background-color: #1e1e1e;
+    color: white;
+}
+
+// input channel label style //
+#channeltag {
+    position: absolute;
+    top: 20px;
+    left: 8px;
+    color: white;
+}
+
+
+/*
+ *  CHAT AREA SCROLLBAR STYLE
+ */
+
+.style-8::-webkit-scrollbar-track {
+    border: 1px solid #cacaca;
+    background-color: #F5F5F5;
+}
+
+.style-8::-webkit-scrollbar {
+    width: 10px;
+    background-color: #F5F5F5;
+}
+
+.style-8::-webkit-scrollbar-thumb {
+    background-color: #cacaca;
+}
