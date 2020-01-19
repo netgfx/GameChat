@@ -161,10 +161,17 @@ export class InputControl {
      * @param {*} id
      * @memberof InputControl
      */
-    registerStyleForId(id) {
+    registerStyleForId(id, guild) {
         var style = document.createElement('style');
         style.type = 'text/css';
         style.innerHTML = '.' + id + ' { color: #21daff; }';
         document.getElementsByTagName('head')[0].appendChild(style);
+
+        if (guild) {
+            var style = document.createElement('style');
+            style.type = 'text/css';
+            style.innerHTML = '.' + guild + ' { color: #00e50f; }';
+            document.getElementsByTagName('head')[0].appendChild(style);
+        }
     }
 }

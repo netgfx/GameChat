@@ -2,3 +2,6 @@
 node_modules/
 dist/
 todo.md
+node_modules
+src/js/const.js
+src/js/plugins/config.js

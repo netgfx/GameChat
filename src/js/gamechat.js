@@ -120,6 +120,33 @@ export class GameChat {
     /**
      *
      *
+     * @param {*} id
+     * @param {*} callback
+     * @memberof GameChat
+     */
+    getUserById(id, callback) {
+        var ref = firebase.database().ref('mothership/global/members').orderByChild("id").equalTo(id);
+
+        ref.once('value').then(function(snapshot) {
+            console.log("user found: ", snapshot.val(), snapshot.val().id);
+            let userObj = {};
+            let object = snapshot.val();
+            for (const key in object) {
+                if (object.hasOwnProperty(key)) {
+                    userObj = object[key];
+                }
+            }
+
+            if (callback) {
+                console.log(userObj);
+                callback(userObj);
+            }
+        });
+    }
+
+    /**
+     *
+     *
      * @param {*} text
      * @memberof GameChat
      */
@@ -128,7 +155,7 @@ export class GameChat {
         this.getUserByName(name, (userObj) => {
             let userId = userObj.id;
 
-            let finalText = "<section class='" + currentUser.uid + " whisper'> <span>" + currentUser.email.split("@")[0] + ": </span>" + text + "</section>";
+            let finalText = "<section class='" + currentUser.uid + " " + currentUser.lives + " whisper'> <span>" + currentUser.email.split("@")[0] + ": </span>" + text + "</section>";
             let postRef = firebase.database().ref('mothership/global/members/' + userId + "/inbox");
             postRef.transaction(function(post) {
                 if (post) {
@@ -193,20 +220,22 @@ export class GameChat {
      */
     sendDataToGlobal(text, uid) {
         let user = this.getUser();
-        console.log(user, user.uid, user.displayName);
-        let finalText = "<section class='" + user.uid + "'> <span>" + user.email.split("@")[0] + ": </span>" + text + "</section>";
-        let postRef = firebase.database().ref('mothership/global/chat/textarea');
-        postRef.transaction(function(post) {
-            if (post) {
-                console.log(post);
-                post += finalText;
-            } else {
-                post = "";
-                post += finalText;
-            }
-            return post;
-        }, result => {
-            console.log("transaction ended: ", result);
+        this.getUserById(user.uid, (userObj) => {
+            console.log(user, user.uid, user.displayName);
+            let finalText = "<section class='" + user.uid + " " + userObj.lives + "'> <span>" + user.email.split("@")[0] + ": </span>" + text + "</section>";
+            let postRef = firebase.database().ref('mothership/global/chat/textarea');
+            postRef.transaction(function(post) {
+                if (post) {
+                    console.log(post);
+                    post += finalText;
+                } else {
+                    post = "";
+                    post += finalText;
+                }
+                return post;
+            }, result => {
+                console.log("transaction ended: ", result);
+            });
         });
 
     }
