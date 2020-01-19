@@ -38,14 +38,20 @@ export class GameChat {
      */
     createUser(username, password) {
         let that = this;
-        firebase.auth().createUserWithEmailAndPassword(username, password).then(result => {
-            that.saveUserLocally(username, password);
-            that.addMemberToGlobal(result.user);
-        }).catch(function(error) {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            // ...
+
+        // try to login first //
+        this.loginUser(username, password, (error) => {
+            // if user doesn't exist //
+            firebase.auth().createUserWithEmailAndPassword(username, password).then(result => {
+                that.saveUserLocally(username, password);
+                that.addMemberToGlobal(result.user);
+            }).catch(function(error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log("ERROR Creating user: ", error);
+                // ...
+            });
         });
     }
 
@@ -181,7 +187,7 @@ export class GameChat {
      * @param {*} password
      * @memberof GameChat
      */
-    loginUser(username, password) {
+    loginUser(username, password, errorCallback) {
         let that = this;
         firebase.auth().signInWithEmailAndPassword(username, password).then(result => {
             that.readGlobalDataOnce();
@@ -192,6 +198,8 @@ export class GameChat {
             // Handle Errors here.
             var errorCode = error.code;
             var errorMessage = error.message;
+            console.log(errorCode, errorMessage, error);
+            errorCallback(error);
             // ...
         });
     }
@@ -220,23 +228,29 @@ export class GameChat {
      */
     sendDataToGlobal(text, uid) {
         let user = this.getUser();
-        this.getUserById(user.uid, (userObj) => {
-            console.log(user, user.uid, user.displayName);
-            let finalText = "<section class='" + user.uid + " " + userObj.lives + "'> <span>" + user.email.split("@")[0] + ": </span>" + text + "</section>";
-            let postRef = firebase.database().ref('mothership/global/chat/textarea');
-            postRef.transaction(function(post) {
-                if (post) {
-                    console.log(post);
-                    post += finalText;
-                } else {
-                    post = "";
-                    post += finalText;
-                }
-                return post;
-            }, result => {
-                console.log("transaction ended: ", result);
+        console.log(user);
+        if (user) {
+            this.getUserById(user.uid, (userObj) => {
+                console.log(user, user.uid, user.displayName);
+                let finalText = "<section class='" + user.uid + " " + userObj.lives + "'> <span>" + user.email.split("@")[0] + ": </span>" + text + "</section>";
+                let postRef = firebase.database().ref('mothership/global/chat/textarea');
+                postRef.transaction(function(post) {
+                    if (post) {
+                        console.log(post);
+                        post += finalText;
+                    } else {
+                        post = "";
+                        post += finalText;
+                    }
+                    return post;
+                }, result => {
+                    console.log("transaction ended: ", result);
+                });
             });
-        });
+        } else {
+            console.log("unauthorized, please login first");
+            this.inputControl.updateChatArea("Unauthorized, please login first", null, "error");
+        }
 
     }
 

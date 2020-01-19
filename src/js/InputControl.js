@@ -95,12 +95,15 @@ export class InputControl {
      * @param {*} isOwn
      * @memberof InputControl
      */
-    updateChatArea(value, addOnly) {
+    updateChatArea(value, addOnly, type) {
         var elem = document.getElementById("chatarea");
         let renderHTML;
         if (addOnly) {
             renderHTML = this.getHtmlToRender("whisper-in", value);
             elem.innerHTML += renderHTML;
+        } else if (addOnly === null && type !== undefined && type !== null) {
+            renderHTML = this.getHtmlToRender(type, value);
+            elem.innerHTML = renderHTML;
         } else {
             renderHTML = this.getHtmlToRender("default", value);
             elem.innerHTML = renderHTML;
@@ -134,7 +137,7 @@ export class InputControl {
         if (type === "default" || type === undefined) {
             return "<div>" + filter.clean(text) + "</div>";
         } else if (type === "error") {
-            return "<div style='color:red;'>" + filter.clean(text) + "</div>";
+            return "<div style='color:red !Important;'>" + text + "</div>";
         } else if (type === "whisper-in") {
             return text;
         } else if (type === "whisper-out") {
