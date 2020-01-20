@@ -18,8 +18,25 @@ parcel ./src/index.html --open
 ```
 
 - To login or create a user, type on the chat input: 
+    
     -  `u: <username>, p: <password>` 
 
 - To send a whisper type: 
 
     - `/w <name-to-send-to> <message>`
+
+
+## Guilds
+
+- How to register a guild
+    
+    - `node GuildFunctions.js g_make <guildname>`
+
+- How to add a member to a guild
+
+    - `node GuildFunctions.js g_add_member <member-name>`
+
+- How to remove a guild
+
+    - `node GuildFunctions.js g_remove <guildname>`
+ 

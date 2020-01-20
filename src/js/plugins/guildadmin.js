@@ -87,11 +87,61 @@ class GuildAdmin {
     /**
      *
      *
+     * @memberof GuildAdmin
+     */
+    getGuildByName(name, callback) {
+        var ref = firebase.database().ref('mothership/guilds').orderByChild("name").equalTo(name);
+
+        ref.once('value').then(function(snapshot) {
+            let object = snapshot.val();
+            console.log(object);
+            let guildObj = {};
+            for (const key in object) {
+                if (object.hasOwnProperty(key)) {
+                    guildObj = object[key];
+                }
+            }
+
+            if (callback) {
+                console.log(guildObj);
+                callback(guildObj);
+            }
+        });
+    }
+
+    /**
+     *
+     *
      * @param {*} guildName
      * @param {*} guildId
      * @memberof GuildAdmin
      */
     deleteGuild(guildName, guildId) {
+        var that = this;
+
+        this.getGuildByName(guildName, (guildObj) => {
+            console.log(guildObj.id, guildObj.name);
+
+            let ref = firebase.database().ref('mothership/guilds/guild-' + guildObj.id);
+            ref.remove()
+                .then(function() {
+                    console.log("Remove succeeded.")
+                })
+                .catch(function(error) {
+                    console.log("Remove failed: " + error.message)
+                });
+
+        });
+
+    }
+
+    /**
+     *
+     *
+     * @param {*} userName
+     * @memberof GuildAdmin
+     */
+    findMemberByName(userName, callback) {
 
     }
 
