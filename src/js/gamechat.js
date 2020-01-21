@@ -194,6 +194,7 @@ export class GameChat {
             that.persistentGlobalListener();
             that.persistentInboxListener();
             that.inputControl.registerStyleForId(that.getUser().uid);
+            that.saveUserLocally(username, password);
         }).catch(function(error) {
             // Handle Errors here.
             var errorCode = error.code;

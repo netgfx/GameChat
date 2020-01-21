@@ -14,7 +14,7 @@ export class InputControl {
         ///
         filter.setReplacementMethod('stars');
         filter.seed('profanity');
-        filter.addWord('ass', 'badonkadonk');
+        //filter.addWord('ass', 'badonkadonk');
         this.addEventListeners();
     }
 
@@ -134,6 +134,7 @@ export class InputControl {
      * @memberof InputControl
      */
     getHtmlToRender(type, text) {
+        console.log(type);
         if (type === "default" || type === undefined) {
             return "<div>" + filter.clean(text) + "</div>";
         } else if (type === "error") {
