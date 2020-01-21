@@ -1,4 +1,5 @@
 import jQuery from "jquery";
+import _ from "lodash";
 import filter from "profanity-filter";
 
 export class InputControl {
@@ -42,11 +43,18 @@ export class InputControl {
 
                 if (txtbox.value.indexOf("/w") !== -1) {
                     let valueSplit = txtbox.value.split(" ");
-                    let text = txtbox.value.split(", ")[1];
-                    let name = valueSplit[1].replace(",", "");
+                    let values = [];
+                    for (var i = 2; i < valueSplit.length; i++) {
+                        values.push(valueSplit[i]);
+                    }
+
+                    let text = _.join(_.flatten(values), " "); //txtbox.value.split(", ")[1];
+                    let name = valueSplit[1];
+                    console.log(text, name);
                     let renderHTML = this.getHtmlToRender("whisper-out", text);
                     console.log(renderHTML);
                     this.gameChat.sendWhisper(name, renderHTML);
+                    txtbox.value = "";
                     return;
                 }
 
@@ -134,7 +142,7 @@ export class InputControl {
      * @memberof InputControl
      */
     getHtmlToRender(type, text) {
-        console.log(type);
+        console.log(type, text);
         if (type === "default" || type === undefined) {
             return "<div>" + filter.clean(text) + "</div>";
         } else if (type === "error") {

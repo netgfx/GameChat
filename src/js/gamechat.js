@@ -160,8 +160,8 @@ export class GameChat {
         let currentUser = this.getUser();
         this.getUserByName(name, (userObj) => {
             let userId = userObj.id;
-
-            let finalText = "<section class='" + currentUser.uid + " " + currentUser.lives + " whisper'> <span>" + currentUser.email.split("@")[0] + ": </span>" + text + "</section>";
+            let timestamp = new Date().getTime();
+            let finalText = "<section data-timestamp='" + timestamp + "' class='" + currentUser.uid + " " + currentUser.lives + " whisper'> <span>" + currentUser.email.split("@")[0] + ": </span>" + text + "</section>";
             let postRef = firebase.database().ref('mothership/global/members/' + userId + "/inbox");
             postRef.transaction(function(post) {
                 if (post) {
@@ -232,8 +232,8 @@ export class GameChat {
         console.log(user);
         if (user) {
             this.getUserById(user.uid, (userObj) => {
-                console.log(user, user.uid, user.displayName);
-                let finalText = "<section class='" + user.uid + " " + userObj.lives + "'> <span>" + user.email.split("@")[0] + ": </span>" + text + "</section>";
+                let timestamp = new Date().getTime();
+                let finalText = "<section data-timestamp='" + timestamp + "' class='" + user.uid + " " + userObj.lives + "'> <span>" + user.email.split("@")[0] + ": </span>" + text + "</section>";
                 let postRef = firebase.database().ref('mothership/global/chat/textarea');
                 postRef.transaction(function(post) {
                     if (post) {
