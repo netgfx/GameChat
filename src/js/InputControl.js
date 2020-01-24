@@ -104,19 +104,25 @@ export class InputControl {
      * @memberof InputControl
      */
     updateChatArea(value, addOnly, type) {
+        this.splitInput(value);
         var elem = document.getElementById("chatarea");
         let renderHTML;
         if (addOnly) {
-            renderHTML = this.getHtmlToRender("whisper-in", value);
+            renderHTML = this.getHtmlToRender("whisper-in", value.replace(/\|\|\|/gi, ""));
             elem.innerHTML += renderHTML;
         } else if (addOnly === null && type !== undefined && type !== null) {
-            renderHTML = this.getHtmlToRender(type, value);
+            renderHTML = this.getHtmlToRender(type, value.replace(/\|\|\|/gi, ""));
             elem.innerHTML = renderHTML;
         } else {
-            renderHTML = this.getHtmlToRender("default", value);
+            renderHTML = this.getHtmlToRender("default", value.replace(/\|\|\|/gi, ""));
             elem.innerHTML = renderHTML;
         }
         this.scrollToBottom();
+    }
+
+    splitInput(values) {
+        let splitResult = values.split("|||");
+        console.log(values, splitResult);
     }
 
     /**

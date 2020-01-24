@@ -157,11 +157,12 @@ export class GameChat {
      * @memberof GameChat
      */
     sendWhisper(name, text) {
+        // TODO: send a copy to sender -> to info: ... 
         let currentUser = this.getUser();
         this.getUserByName(name, (userObj) => {
             let userId = userObj.id;
             let timestamp = new Date().getTime();
-            let finalText = "<section data-timestamp='" + timestamp + "' class='" + currentUser.uid + " " + currentUser.lives + " whisper'> <span>" + currentUser.email.split("@")[0] + ": </span>" + text + "</section>";
+            let finalText = "<section data-timestamp='" + timestamp + "' class='" + currentUser.uid + " " + currentUser.lives + " whisper'> <span>" + currentUser.email.split("@")[0] + ": </span>" + text + "</section>|||";
             let postRef = firebase.database().ref('mothership/global/members/' + userId + "/inbox");
             postRef.transaction(function(post) {
                 if (post) {
@@ -233,7 +234,7 @@ export class GameChat {
         if (user) {
             this.getUserById(user.uid, (userObj) => {
                 let timestamp = new Date().getTime();
-                let finalText = "<section data-timestamp='" + timestamp + "' class='" + user.uid + " " + userObj.lives + "'> <span>" + user.email.split("@")[0] + ": </span>" + text + "</section>";
+                let finalText = "<section data-timestamp='" + timestamp + "' class='" + user.uid + " " + userObj.lives + "'> <span>" + user.email.split("@")[0] + ": </span>" + text + "</section>|||";
                 let postRef = firebase.database().ref('mothership/global/chat/textarea');
                 postRef.transaction(function(post) {
                     if (post) {
