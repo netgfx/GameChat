@@ -12,6 +12,8 @@ export class InputControl {
         this.score = 0;
         this.penalty = 200; // Penalty can be fine-tuned.
         this.lastact = new Date();
+        this.globalList = [];
+        this.whisperList = [];
         ///
         filter.setReplacementMethod('stars');
         filter.seed('profanity');
@@ -104,26 +106,85 @@ export class InputControl {
      * @memberof InputControl
      */
     updateChatArea(value, addOnly, type) {
-        this.splitInput(value);
-        var elem = document.getElementById("chatarea");
-        let renderHTML;
-        if (addOnly) {
-            renderHTML = this.getHtmlToRender("whisper-in", value.replace(/\|\|\|/gi, ""));
-            elem.innerHTML += renderHTML;
-        } else if (addOnly === null && type !== undefined && type !== null) {
-            renderHTML = this.getHtmlToRender(type, value.replace(/\|\|\|/gi, ""));
-            elem.innerHTML = renderHTML;
-        } else {
-            renderHTML = this.getHtmlToRender("default", value.replace(/\|\|\|/gi, ""));
-            elem.innerHTML = renderHTML;
+
+        if (type !== "error") {
+            var prom = this.splitInput(value, type);
+            // TODO: the rest of the FN should wait for the sorting to end, promise (?)
+            prom.then((finalStr) => {
+                var elem = document.getElementById("chatarea");
+                let renderHTML;
+                if (addOnly == true && type === "whisper") {
+                    renderHTML = this.getHtmlToRender("whisper-in", finalStr); //value.replace(/\|\|\|/gi, ""));
+                    elem.innerHTML = renderHTML;
+                } else if (addOnly === null && type !== undefined && type !== null) {
+                    renderHTML = this.getHtmlToRender(type, finalStr); //value.replace(/\|\|\|/gi, ""));
+                    elem.innerHTML = renderHTML;
+                } else {
+                    renderHTML = this.getHtmlToRender("default", finalStr); //value.replace(/\|\|\|/gi, ""));
+                    elem.innerHTML = renderHTML;
+                }
+                this.scrollToBottom();
+                console.log("Yay!");
+            });
         }
-        this.scrollToBottom();
     }
 
-    splitInput(values) {
-        let splitResult = values.split("|||");
-        console.log(values, splitResult);
+    /**
+     *
+     *
+     * @param {*} values
+     * @memberof InputControl
+     */
+    splitInput(values, type) {
+
+        var that = this;
+        let parseProm = new Promise((resolve, reject) => {
+            let splitResult = values.split("|||");
+            this.finalList = [];
+            if (type === "global") {
+                this.globalList = splitResult;
+                this.finalList = splitResult.concat(this.whisperList);
+            } else if (type === "whisper") {
+                this.whisperList = splitResult;
+                this.finalList = splitResult.concat(this.globalList);
+            }
+
+            var domElem;
+            var elementsObject = [];
+            // convert to html //
+            this.finalList.forEach(elem => {
+                domElem = that.stringToDiv(elem, type);
+                if (domElem !== false && domElem !== null && domElem !== undefined) {
+                    var _timestamp = domElem.dataset.timestamp;
+                    elementsObject.push({
+                        elem: domElem,
+                        timestamp: _timestamp
+                    });
+                }
+            });
+
+            // sort by timestamp //
+
+            var sortedArr = elementsObject.sort((item1, item2) => {
+                return item1.timestamp - item2.timestamp;
+            });
+
+            console.log(sortedArr);
+
+            let finalStr = "";
+            sortedArr.forEach(item => {
+                finalStr += item.elem.outerHTML;
+            });
+
+            console.log("final str: ", finalStr);
+
+            resolve(finalStr);
+        });
+
+        return parseProm;
     }
+
+
 
     /**
      *
@@ -171,6 +232,33 @@ export class InputControl {
         var parser = new DOMParser();
         var doc = parser.parseFromString(str, 'text/html');
         return doc.body;
+    }
+
+    /**
+     *
+     *
+     * @param {*} str
+     * @returns
+     * @memberof InputControl
+     */
+    stringToDiv(str) {
+        if (str === null || str === undefined || str === "") {
+            return false;
+        }
+
+        var htmlObject = document.createElement('div');
+        htmlObject.innerHTML = str;
+        // detect type //
+        let type = "";
+        if (str.indexOf("global") !== -1) {
+            type = "global";
+        } else if (str.indexOf("whisper") !== -1) {
+            type = "whisper";
+        }
+
+        let result = htmlObject.querySelector('.' + type);
+
+        return result;
     }
 
     /**

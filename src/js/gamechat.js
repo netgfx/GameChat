@@ -75,6 +75,7 @@ export class GameChat {
         }, result => {
             console.log("member added: ", result);
             that.readGlobalDataOnce();
+            that.readWhisperDataOnce();
             that.persistentGlobalListener();
             that.persistentInboxListener();
             that.inputControl.registerStyleForId(that.getUser().uid);
@@ -162,15 +163,15 @@ export class GameChat {
         this.getUserByName(name, (userObj) => {
             let userId = userObj.id;
             let timestamp = new Date().getTime();
-            let finalText = "<section data-timestamp='" + timestamp + "' class='" + currentUser.uid + " " + currentUser.lives + " whisper'> <span>" + currentUser.email.split("@")[0] + ": </span>" + text + "</section>|||";
+            let finalText = "<section data-timestamp='" + timestamp + "' class='whisper'><span class='" + currentUser.uid + "'>" + currentUser.email.split("@")[0] + ": </span>" + text + "</section>|||";
             let postRef = firebase.database().ref('mothership/global/members/' + userId + "/inbox");
             postRef.transaction(function(post) {
                 if (post) {
                     console.log(post);
-                    post = finalText;
+                    post += finalText;
                 } else {
                     post = "";
-                    post = finalText;
+                    post += finalText;
                 }
                 return post;
             }, result => {
@@ -178,7 +179,36 @@ export class GameChat {
             });
         });
 
+        this.sendWhisperToSelf(name, text);
+    }
 
+    /**
+     *
+     *
+     * @param {*} text
+     * @memberof GameChat
+     */
+    sendWhisperToSelf(sendUser, text) {
+        // TODO: send a copy to sender -> to info: ... 
+        let currentUser = this.getUser();
+        this.getUserByName(currentUser.email.split("@")[0], (userObj) => {
+            let userId = userObj.id;
+            let timestamp = new Date().getTime();
+            let finalText = "<section data-timestamp='" + timestamp + "' class='whisper'><span class='" + currentUser.uid + "'>To " + sendUser + ": </span>" + text + "</section>|||";
+            let postRef = firebase.database().ref('mothership/global/members/' + userId + "/inbox");
+            postRef.transaction(function(post) {
+                if (post) {
+                    console.log(post);
+                    post += finalText;
+                } else {
+                    post = "";
+                    post += finalText;
+                }
+                return post;
+            }, result => {
+                console.log("transaction ended: ", result);
+            });
+        });
     }
 
     /**
@@ -192,6 +222,7 @@ export class GameChat {
         let that = this;
         firebase.auth().signInWithEmailAndPassword(username, password).then(result => {
             that.readGlobalDataOnce();
+            that.readWhisperDataOnce();
             that.persistentGlobalListener();
             that.persistentInboxListener();
             that.inputControl.registerStyleForId(that.getUser().uid);
@@ -234,7 +265,7 @@ export class GameChat {
         if (user) {
             this.getUserById(user.uid, (userObj) => {
                 let timestamp = new Date().getTime();
-                let finalText = "<section data-timestamp='" + timestamp + "' class='" + user.uid + " " + userObj.lives + "'> <span>" + user.email.split("@")[0] + ": </span>" + text + "</section>|||";
+                let finalText = "<section data-timestamp='" + timestamp + "' class='global'><span class='" + user.uid + " " + userObj.lives + "'>" + user.email.split("@")[0] + ": </span>" + text + "</section>|||";
                 let postRef = firebase.database().ref('mothership/global/chat/textarea');
                 postRef.transaction(function(post) {
                     if (post) {
@@ -267,7 +298,23 @@ export class GameChat {
         let ref = firebase.database().ref('mothership/global/chat/textarea');
         return ref.once('value').then(function(snapshot) {
             console.log("global snapshot: ", snapshot.val());
-            that.inputControl.updateChatArea(snapshot.val());
+            that.inputControl.updateChatArea(snapshot.val(), false, "global");
+        });
+    }
+
+    /**
+     *
+     *
+     * @returns
+     * @memberof GameChat
+     */
+    readWhisperDataOnce() {
+        var that = this;
+        let user = this.getUser();
+        let ref = firebase.database().ref('mothership/global/members/' + user.uid + "/inbox");
+        return ref.once('value').then(function(snapshot) {
+            console.log("whispers snapshot: ", snapshot.val());
+            that.inputControl.updateChatArea(snapshot.val(), false, "whisper");
         });
     }
 
@@ -281,7 +328,7 @@ export class GameChat {
         let ref = firebase.database().ref('mothership/global/chat/textarea');
         ref.on('value', function(snapshot) {
             console.log("updates received: ", snapshot.val());
-            that.inputControl.updateChatArea(snapshot.val());
+            that.inputControl.updateChatArea(snapshot.val(), false, "global");
         });
     }
 
@@ -296,7 +343,7 @@ export class GameChat {
         let ref = firebase.database().ref('mothership/global/members/' + user.uid + "/inbox");
         ref.on('value', function(snapshot) {
             console.log("inbox updates received: ", snapshot.val());
-            that.inputControl.updateChatArea(snapshot.val(), true);
+            that.inputControl.updateChatArea(snapshot.val(), true, "whisper");
         });
     }
 
