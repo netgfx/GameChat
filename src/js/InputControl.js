@@ -21,7 +21,6 @@ export class InputControl {
         ///
         filter.setReplacementMethod('stars');
         filter.seed('profanity');
-        //filter.addWord('ass', 'badonkadonk');
         this.addEventListeners();
     }
 
@@ -62,9 +61,7 @@ export class InputControl {
 
                     let text = _.join(_.flatten(values), " "); //txtbox.value.split(", ")[1];
                     let name = this.state.whisperTarget === null ? valueSplit[1] : this.state.whisperTarget;
-                    console.log(text, name);
                     let renderHTML = this.getHtmlToRender("whisper-out", text);
-                    console.log(renderHTML);
                     this.gameChat.sendWhisper(name, renderHTML);
                     txtbox.value = "";
                     this.setChannel("whisper", name);
@@ -135,7 +132,6 @@ export class InputControl {
                     elem.innerHTML = renderHTML;
                 }
                 this.scrollToBottom();
-                console.log("Yay!");
             }).catch(err => {
                 console.log("ERROR: ", err);
             });
@@ -182,8 +178,6 @@ export class InputControl {
                 return item1.timestamp - item2.timestamp;
             });
 
-            console.log(sortedArr);
-
             let finalStr = "";
             sortedArr.forEach(item => {
                 finalStr += item.elem.outerHTML;
@@ -220,7 +214,6 @@ export class InputControl {
      * @memberof InputControl
      */
     getHtmlToRender(type, text) {
-        console.log(type, text);
         if (type === "default" || type === undefined) {
             return "<div>" + filter.clean(text) + "</div>";
         } else if (type === "error") {

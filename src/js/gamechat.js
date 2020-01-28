@@ -261,7 +261,6 @@ export class GameChat {
      */
     sendDataToGlobal(text, uid) {
         let user = this.getUser();
-        console.log(user);
         if (user) {
             this.getUserById(user.uid, (userObj) => {
                 let timestamp = new Date().getTime();
@@ -269,7 +268,6 @@ export class GameChat {
                 let postRef = firebase.database().ref('mothership/global/chat/textarea');
                 postRef.transaction(function(post) {
                     if (post) {
-                        console.log(post);
                         post += finalText;
                     } else {
                         post = "";
@@ -297,7 +295,6 @@ export class GameChat {
         var that = this;
         let ref = firebase.database().ref('mothership/global/chat/textarea');
         return ref.once('value').then(function(snapshot) {
-            console.log("global snapshot: ", snapshot.val());
             that.inputControl.updateChatArea(snapshot.val(), false, "global");
         });
     }
@@ -313,7 +310,6 @@ export class GameChat {
         let user = this.getUser();
         let ref = firebase.database().ref('mothership/global/members/' + user.uid + "/inbox");
         return ref.once('value').then(function(snapshot) {
-            console.log("whispers snapshot: ", snapshot.val());
             that.inputControl.updateChatArea(snapshot.val(), false, "whisper");
         });
     }
@@ -327,7 +323,6 @@ export class GameChat {
         var that = this;
         let ref = firebase.database().ref('mothership/global/chat/textarea');
         ref.on('value', function(snapshot) {
-            console.log("updates received: ", snapshot.val());
             that.inputControl.updateChatArea(snapshot.val(), false, "global");
         });
     }
@@ -342,7 +337,6 @@ export class GameChat {
         let user = this.getUser();
         let ref = firebase.database().ref('mothership/global/members/' + user.uid + "/inbox");
         ref.on('value', function(snapshot) {
-            console.log("inbox updates received: ", snapshot.val());
             that.inputControl.updateChatArea(snapshot.val(), true, "whisper");
         });
     }
@@ -369,7 +363,6 @@ export class GameChat {
             password: password
         };
         let path = 'gamechat-user';
-
         localStorage.setItem(path, JSON.stringify(obj));
     }
 
