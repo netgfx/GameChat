@@ -14,6 +14,10 @@ export class InputControl {
         this.lastact = new Date();
         this.globalList = [];
         this.whisperList = [];
+        this.state = {
+            channel: "global",
+            whisperTarget: null
+        };
         ///
         filter.setReplacementMethod('stars');
         filter.seed('profanity');
@@ -43,7 +47,13 @@ export class InputControl {
                     return;
                 }
 
-                if (txtbox.value.indexOf("/w") !== -1) {
+                if (txtbox.value.indexOf("/a") !== -1 && this.state.channel !== "global") {
+                    this.setChannel("global");
+                    txtbox.value = "";
+                    return;
+                }
+
+                if (txtbox.value.indexOf("/w") !== -1 || this.state.channel === "whisper") {
                     let valueSplit = txtbox.value.split(" ");
                     let values = [];
                     for (var i = 2; i < valueSplit.length; i++) {
@@ -51,12 +61,13 @@ export class InputControl {
                     }
 
                     let text = _.join(_.flatten(values), " "); //txtbox.value.split(", ")[1];
-                    let name = valueSplit[1];
+                    let name = this.state.whisperTarget === null ? valueSplit[1] : this.state.whisperTarget;
                     console.log(text, name);
                     let renderHTML = this.getHtmlToRender("whisper-out", text);
                     console.log(renderHTML);
                     this.gameChat.sendWhisper(name, renderHTML);
                     txtbox.value = "";
+                    this.setChannel("whisper", name);
                     return;
                 }
 
@@ -76,7 +87,7 @@ export class InputControl {
                     this.gameChat.sendDataToGlobal(renderHTML);
                     //elem.innerHTML += renderHTML; // to show it locally only
                     txtbox.value = "";
-
+                    this.setChannel("global");
                     this.scrollToBottom();
 
                     // reset //
@@ -125,6 +136,8 @@ export class InputControl {
                 }
                 this.scrollToBottom();
                 console.log("Yay!");
+            }).catch(err => {
+                console.log("ERROR: ", err);
             });
         }
     }
@@ -175,8 +188,6 @@ export class InputControl {
             sortedArr.forEach(item => {
                 finalStr += item.elem.outerHTML;
             });
-
-            console.log("final str: ", finalStr);
 
             resolve(finalStr);
         });
@@ -278,6 +289,23 @@ export class InputControl {
             style.type = 'text/css';
             style.innerHTML = '.' + guild + ' { color: #00e50f; }';
             document.getElementsByTagName('head')[0].appendChild(style);
+        }
+    }
+
+    /**
+     *
+     *
+     * @param {*} type
+     * @memberof InputControl
+     */
+    setChannel(type, target) {
+        this.state.channel = type;
+        this.state.whisperTarget = target !== undefined ? target : null;
+        let channelLabel = document.getElementById("channeltag");
+        if (type == "whisper") {
+            channelLabel.innerHTML = "<div class='inner-tag'>[Whisper]:</div>";
+        } else if (type === "global") {
+            channelLabel.innerHTML = "<div class='inner-tag'>[Global]:</div>";
         }
     }
 }

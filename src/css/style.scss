@@ -30,9 +30,17 @@
 // input channel label style //
 #channeltag {
     position: absolute;
-    top: 20px;
-    left: 8px;
     color: white;
+    border-right: 1px solid gold;
+    height: 100%;
+    top: 0;
+    min-width: 80px;
+    text-align: center;
+    left: 0;
+    div {
+        top: 14px;
+        position: relative;
+    }
 }
 
 
