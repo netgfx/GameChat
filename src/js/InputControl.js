@@ -1,4 +1,3 @@
-import jQuery from "jquery";
 import _ from "lodash";
 import filter from "profanity-filter";
 
@@ -115,12 +114,13 @@ export class InputControl {
      */
     updateChatArea(value, addOnly, type) {
 
+        let renderHTML;
         if (type !== "error") {
             var prom = this.splitInput(value, type);
             // TODO: the rest of the FN should wait for the sorting to end, promise (?)
             prom.then((finalStr) => {
                 var elem = document.getElementById("chatarea");
-                let renderHTML;
+
                 if (addOnly == true && type === "whisper") {
                     renderHTML = this.getHtmlToRender("whisper-in", finalStr); //value.replace(/\|\|\|/gi, ""));
                     elem.innerHTML = renderHTML;
@@ -135,6 +135,9 @@ export class InputControl {
             }).catch(err => {
                 console.log("ERROR: ", err);
             });
+        } else {
+            renderHTML = this.getHtmlToRender("error", value); //value.replace(/\|\|\|/gi, ""));
+            elem.innerHTML += renderHTML;
         }
     }
 
