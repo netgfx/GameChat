@@ -33,52 +33,63 @@ export class InputControl {
         txtbox.onkeydown = function(e) {
             if (e.key == "Enter") {
 
-                // check for register script //
-                if (txtbox.value.indexOf("u: ") !== -1 && txtbox.value.indexOf("p: ") !== -1) {
-                    // parse //
-                    let splits = txtbox.value.split(",");
-                    let username = splits[0].replace("u: ", "").trim();
-                    let password = splits[1].replace("p: ", "").trim();
-
-                    this.gameChat.createUser(username, password);
-                    txtbox.value = "";
-                    return;
-                }
-
-                if (txtbox.value.indexOf("/a") !== -1 && this.state.channel !== "global") {
-                    this.setChannel("global");
-                    txtbox.value = "";
-                    return;
-                }
-
-                if (txtbox.value.indexOf("/w") !== -1 || this.state.channel === "whisper") {
-                    let valueSplit = txtbox.value.split(" ");
-                    let values = [];
-                    for (var i = 2; i < valueSplit.length; i++) {
-                        values.push(valueSplit[i]);
-                    }
-
-                    let text = _.join(_.flatten(values), " "); //txtbox.value.split(", ")[1];
-                    let name = this.state.whisperTarget === null ? valueSplit[1] : this.state.whisperTarget;
-                    let renderHTML = this.getHtmlToRender("whisper-out", text);
-                    this.gameChat.sendWhisper(name, renderHTML);
-                    txtbox.value = "";
-                    this.setChannel("whisper", name);
-                    return;
-                }
-
-                /* The smaller the distance, more time has to pass in order
-                 * to negate the score penalty cause{d,s}.
-                 */
-                this.score -= (new Date() - this.lastact) * 0.05;
-
-                console.log(this.score);
-                // Score shouldn't be less than zero.
                 this.score = (this.score < 0) ? 0 : this.score;
 
                 var elem = document.getElementById("chatarea");
-
+                // flood control //
                 if ((this.score += this.penalty) < 1000) {
+                    // check for register script //
+                    if (txtbox.value.indexOf("u: ") !== -1 && txtbox.value.indexOf("p: ") !== -1) {
+                        // parse //
+                        let splits = txtbox.value.split(",");
+                        let username = splits[0].replace("u: ", "").trim();
+                        let password = splits[1].replace("p: ", "").trim();
+
+                        this.gameChat.createUser(username, password);
+                        txtbox.value = "";
+                        return;
+                    }
+
+                    if (txtbox.value.indexOf("/a") !== -1 && this.state.channel !== "global") {
+                        this.setChannel("global");
+                        txtbox.value = "";
+                        return;
+                    }
+
+                    if (txtbox.value.indexOf("/w") !== -1 || this.state.channel === "whisper") {
+                        if (txtbox.value.indexOf("/w") !== -1) {
+                            console.log("initial whisper");
+                            let valueSplit = txtbox.value.split(" ");
+                            let values = [];
+                            for (var i = 2; i < valueSplit.length; i++) {
+                                values.push(valueSplit[i]);
+                            }
+
+                            let text = _.join(_.flatten(values), " "); //txtbox.value.split(", ")[1];
+                            let name = this.state.whisperTarget === null ? valueSplit[1] : this.state.whisperTarget;
+                            let renderHTML = this.getHtmlToRender("whisper-out", text);
+                            this.gameChat.sendWhisper(name, renderHTML);
+                            txtbox.value = "";
+                            this.setChannel("whisper", name);
+                            return;
+                        } else {
+                            console.log("send to saved: ", this.state.whisperTarget);
+                            let renderHTML = this.getHtmlToRender("whisper-out", txtbox.value);
+                            this.gameChat.sendWhisper(this.state.whisperTarget, renderHTML);
+                            txtbox.value = "";
+                            this.setChannel("whisper", name);
+                            return;
+                        }
+                    }
+
+                    /* The smaller the distance, more time has to pass in order
+                     * to negate the score penalty cause{d,s}.
+                     */
+                    this.score -= (new Date() - this.lastact) * 0.05;
+
+                    console.log(this.score);
+                    // Score shouldn't be less than zero.
+
                     let renderHTML = this.getHtmlToRender("default", txtbox.value);
                     this.gameChat.sendDataToGlobal(renderHTML);
                     //elem.innerHTML += renderHTML; // to show it locally only
