@@ -51,6 +51,12 @@ export class InputControl {
                     return;
                 }
 
+                if (txtbox.value.indexOf("/g") !== -1 && this.state.channel !== "guild") {
+                    this.setChannel("guild");
+                    txtbox.value = "";
+                    return;
+                }
+
                 if (txtbox.value.indexOf("/w") !== -1 || this.state.channel === "whisper") {
                     let valueSplit = txtbox.value.split(" ");
                     let values = [];
@@ -302,6 +308,8 @@ export class InputControl {
             channelLabel.innerHTML = "<div class='inner-tag'>[Whisper]:</div>";
         } else if (type === "global") {
             channelLabel.innerHTML = "<div class='inner-tag'>[Global]:</div>";
+        } else if (type === "guild") {
+            channelLabel.innerHTML = "<div class='inner-tag guild-tag'>[Guild]:</div>";
         }
     }
 }
