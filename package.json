@@ -16,7 +16,7 @@
     },
     "dependencies": {
         "firebase": "^7.6.2",
-        "jquery": "^3.4.1",
+        "jquery": "^3.5.0",
         "lodash": "^4.17.19",
         "md5": "^2.2.1",
         "phaser": "^3.21.0",
