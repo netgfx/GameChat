@@ -11,7 +11,7 @@
         "watch": "parcel watch src/index.html --out-dir dist --public-url /GameChat/dist"
     },
     "devDependencies": {
-        "parcel-bundler": "^1.9.0",
+        "parcel-bundler": "^1.12.4",
         "sass": "^1.24.4"
     },
     "dependencies": {
